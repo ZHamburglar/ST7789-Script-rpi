@@ -19,12 +19,6 @@ logging.basicConfig(level=logging.INFO)
 
 dateString = '%Y/%m/%d %H:%M:%S'
 
-print(datetime.datetime.now().strftime(dateString))
-def my_function():
-  print("Hello from a function")
-
-my_function()
-
 # % Ram Usage with psutil
 def get_ram_info():
     """ Return RAM usage using psutil """
@@ -60,40 +54,62 @@ print('j',get_cpu_tempfunc())
 print('CPU Use:',get_cpu_use())
 print('GPU Temp:',get_gpu_tempfunc())
 
+# Fonts
+font30 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 30)
+font17 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 17)
+font15 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 15)
+
+# Initialize the Display
 disp = ST7789.ST7789()
 # Initialize library.
 disp.Init()
-
 # Clear display.
 disp.clear()
 
 while True:
-    print ("2inch LCD Module")
-
-
-    # image = Image.new('RGB', (disp.width,disp.height), (255,255,255)) 
     image = Image.new('RGB', (disp.height,disp.width), (0,0,0)) 
-
     draw = ImageDraw.Draw(image)
 
-    font30 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 30)
-    font15 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 15)
-    print ("***draw line")
-    draw.line([(40,20),(200,20)], fill = "BLUE",width = 5)
-    draw.line([(40,20),(40,200)], fill = "BLUE",width = 5)
-    draw.line([(40,200),(200,200)], fill = "BLUE",width = 5)
-    draw.line([(200,20),(200,200)], fill = "BLUE",width = 5)
-    print ("***draw rectangle")
-    draw.rectangle([(50,30),(190,70)],fill = "BLUE")
+    # String Concats
+    cpuTempString = 'CPU: ' + get_cpu_tempfunc() +"'C"
+    gpuTempString = 'GPU: ' + get_gpu_tempfunc()
+
+    # Set GPU Bar Width
+    # Set between 30 and 85'C
+    # 220 width
+    gpuTemp = get_gpu_tempfunc().replace("'C", "")
+    gpuWidth = (((float(gpuTemp) - 30)/55) * 220) + 91
+    # TODO Add threshold at 80% and 90%
+    print('GPU ', gpuWidth)
+    print('GPU Temp ', gpuTemp)
+
+    # Set CPU Bar Width
+    # Set between 30'C and 85'C
+    # 220 width
+    cpuTemp = get_cpu_tempfunc()
+    cpuWidth = (((float(cpuTemp) - 30)/55) * 220) + 91
+    print('CPU ', cpuWidth)
+    print('CPU Temp ', cpuTemp)
+
+    draw.rectangle([(50,30),(190,70)],fill = "BLUE", outline = "WHITE")
     
-    print ("***draw text")
-    draw.text((60,30), u'Boot Program', font = font30, fill = "WHITE")
-    draw.text((50, 75), 'Waveshare Electronic ', font = font15, fill = "BLUE")
-    draw.text((75, 110), '2.0inch LCD ', font = font15, fill = "BLUE")
-    draw.text((72, 140), 'Test Program ', font = font15, fill = "BLUE")
-    time.sleep(.1)
+    # print ("***draw text")
+    # draw.text((60,30), u'Boot Program', font = font30, fill = "WHITE")
+    # draw.text((50, 75), 'Waveshare Electronic ', font = font15, fill = "BLUE")
+    # draw.text((75, 110), '2.0inch LCD ', font = font15, fill = "BLUE")
+    # draw.text((72, 140), 'Test Program ', font = font15, fill = "BLUE")
+    # time.sleep(.1)
     draw.text((72, 170), datetime.datetime.now().strftime(dateString), font = font15, fill = "BLUE")
 
+    draw.rectangle([(50,30),(190,70)],fill = "BLUE", outline = "WHITE")
+
+    draw.text((8, 200), cpuTempString, font = font15, fill = "BLUE")
+    draw.rectangle([(90,204),(312,217)], outline = "WHITE")
+    draw.rectangle([(91,205),(cpuWidth,216)], fill = "GREEN")
+
+    draw.text((8, 220), gpuTempString, font = font15, fill = "BLUE")
+    draw.rectangle([(90,223),(312,236)], outline = "WHITE")
+    draw.rectangle([(91,224),(gpuWidth,235)], fill = "GREEN")
 
     image=image.rotate(180) 
     disp.ShowImage(image)
@@ -104,11 +120,6 @@ while True:
     # image=image.rotate(180)
     # disp.ShowImage(image)
     time.sleep(1)
-
-
-
-
-
 
 # except KeyboardInterrupt:    
 #     logging.info("ctrl + c:")
