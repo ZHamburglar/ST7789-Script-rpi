@@ -19,6 +19,7 @@ from PIL import Image,ImageDraw,ImageFont
 logging.basicConfig(level=logging.INFO)
 
 dateString = '%m/%d/%Y %H:%M:%S'
+title = 'Welcome to Kollibox'
 
 # % Ram Usage with psutil
 def get_ram_info():
